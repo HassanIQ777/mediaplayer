@@ -1,14 +1,5 @@
 #include "declarations.hpp"
 
-// Helper to keep values in bounds without underflow
-template <typename T> T clamp_idx(T val, T min, T max) {
-  if (val < min)
-    return min;
-  if (val > max)
-    return max;
-  return val;
-}
-
 inline void settingsMenu(Globals &globals) {
   printLogo();
 
@@ -31,11 +22,12 @@ inline void settingsMenu(Globals &globals) {
 inline void parseSettingsMenuOption(Globals &globals,
                                     const std::string &option_str) {
 
-  if (option_str == "9")
+  if (option_str == "1")
     setColumns(globals);
 
-  if (option_str == ",")
+  if (option_str == ",") {
     globals.ui_state = UI_State::MAIN_MENU;
+  }
 }
 
 inline void setColumns(Globals &globals) {
@@ -58,7 +50,7 @@ inline void setColumns(Globals &globals) {
     return;
   }
 
-  if (amount == 0) {
+  if ((int)amount <= 0) {
     Log::info("Canceled operation.");
     funcs::getKeyPress();
     return;

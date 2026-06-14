@@ -304,8 +304,11 @@ int main(int argc, char *argv[]) {
 
     // ... Other states (SETTINGS) ...
     else if (globals.ui_state == UI_State::SETTINGS) {
+      from = 0;
+      to =
+          std::min((size_t)globals.settings.columns, show_files_indices.size());
+      selected = 0;
       settingsMenu(globals);
-      // TODO: clamp to, from, and selected
     }
   }
 
