@@ -12,12 +12,10 @@ inline std::string toFileUri(const fs::path &path) {
 #include <cstdlib>
 #include <stdexcept>
 
-enum class ClipboardBackend { XCLIP, XSEL, WLCLIP, TERMUX, UNKNOWN };
+enum class ClipboardBackend { XCLIP, XSEL, WLCLIP, UNKNOWN };
 
 inline ClipboardBackend detectBackend() {
   // The "which" trick — if it returns 0, the tool exists
-  if (std::system("command -v termux-clipboard-set >/dev/null 2>&1") == 0)
-    return ClipboardBackend::TERMUX;
   if (std::system("command -v wl-copy >/dev/null 2>&1") == 0)
     return ClipboardBackend::WLCLIP;
   if (std::system("command -v xclip >/dev/null 2>&1") == 0)
@@ -39,9 +37,6 @@ inline void copyToClipboard(const std::string &text) {
 
   std::string cmd;
   switch (detectBackend()) {
-  case ClipboardBackend::TERMUX:
-    cmd = "termux-clipboard-set '" + escaped + "'";
-    break;
   case ClipboardBackend::WLCLIP:
     cmd = "wl-copy '" + escaped + "'";
     break;

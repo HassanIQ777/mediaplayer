@@ -5,6 +5,7 @@
 #include "libutils/src/funcs.hpp"
 #include <algorithm>
 #include <numeric>
+#include <string>
 
 using namespace color;
 
@@ -15,7 +16,7 @@ void printfiles(const std::vector<size_t> &indices,
 int main(int argc, char *argv[]) {
   Globals globals;
   globals.ui_state = UI_State::MAIN_MENU;
-  globals.VERSION = "2.1-fixed";
+  globals.VERSION = "3.0";
   globals.delimiter = std::string(1, 0x1F);
   CLIParser parser(argc, argv);
 
@@ -32,12 +33,12 @@ int main(int argc, char *argv[]) {
   const std::vector<std::string> exception_list =
       File::readfile(globals.paths.exception_list);
 
-  alternativeTerminal();
+  funcs::alternativeTerminal();
 
   std::atomic<bool> is_loading{true};
   std::thread loadingBarThread(loadingBar, std::ref(is_loading));
 
-  const std::string home_folder = parser.getValue("-H");
+  const std::string home_folder = globals.paths.home_dir;
   std::vector<std::string> full_paths;
 
   try {
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]) {
 
   if (full_paths.empty()) {
     std::cerr << "No media found in '" << home_folder << "'" << std::endl;
-    restoreTerminal();
+    funcs::restoreTerminal();
     return -1;
   }
 
@@ -146,8 +147,17 @@ int main(int argc, char *argv[]) {
         if (show_files_indices.size() < step)
           from = 0;
         to = from + step;
-      } else if (key == "q" || key == "Q")
+      } else if (key == "q" || key == "Q") {
+        std::string confirm;
+        print("\nConfirm exit [Y/n]?: ");
+        std::getline(std::cin, confirm);
+
+        if (funcs::lowercase(confirm) == "n") {
+          continue;
+        }
+
         running = false;
+      }
 
       // ACTION: Selection
       else if (key == "\n" || key == " " || key == "/") {
@@ -220,6 +230,7 @@ int main(int argc, char *argv[]) {
       }
 
       else if (key == "S" && !isMobileDevice) {
+        print("\n");
         try {
           std::string uri = toFileUri(full_paths[show_files_indices[selected]]);
           copyToClipboard(uri);
@@ -324,7 +335,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  restoreTerminal();
+  funcs::restoreTerminal();
 
   std::cout << std::endl;
   funcs::printCentered("Thanks for using MediaPlayer!\n");

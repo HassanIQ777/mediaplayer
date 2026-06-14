@@ -1,4 +1,5 @@
 #include "declarations.hpp"
+#include "libutils/src/File.hpp"
 
 inline void settingsMenu(Globals &globals) {
   printLogo();
@@ -135,22 +136,26 @@ inline void createFiles(const Globals &globals) {
 }
 
 inline void parseArgs(CLIParser &parser, Globals &globals) {
-  if (parser.hasFlag("-H")) {
-    if (parser.getValue("-H") == "") {
-      Log::error("No home directory provided.", true);
-    }
-  } else if (parser.hasFlag("-v")) {
+  auto printHelp = []() {
+    std::cerr << "Usage:\n"
+              << "  <PATH>\n"
+              << "  -v    to show version number\n";
+  };
+  if (parser.hasFlag("-v")) {
     std::cout << "MediaPlayer version " << globals.VERSION << std::endl;
     exit(EXIT_SUCCESS);
-  } else {
-    std::cerr << "Usage:" << std::endl
-              << "  -H	[PATH TO HOME FOLDER]\n"
-              << "  -v    to show version number" << std::endl
-              << std::endl;
+  } else if (parser.hasFlag("-h") || parser.hasFlag("--help") ||
+             parser.getArgc() == 1) {
+    printHelp();
     exit(EXIT_SUCCESS);
   }
 
-  globals.paths.home_dir = parser.getValue("-H");
+  globals.paths.home_dir = parser.getArg(1);
+  if (!File::isdirectory(globals.paths.home_dir)) {
+    Log::error(true, "'", globals.paths.home_dir,
+               "' is not a directory. Exiting program");
+    funcs::restoreTerminal();
+  }
 }
 
 inline bool isMediaFile(const std::string &filename) {
@@ -188,17 +193,9 @@ inline std::string trimStr(std::string text, size_t i_width) {
   return text.substr(0, WIDTH - 3 - i_width) + "··";
 }
 
-inline void alternativeTerminal() {
-  std::cout << "\033[?1049h"; // Switch to the alternate screen buffer
-}
-
-inline void restoreTerminal() {
-  std::cout << "\033[?1049l"; // Switch back to the normal screen buffer
-}
-
 inline void SIGINT_handle(int) {
   funcs::printTimed("\nReceived interruption signal. ABORTING\n", 10, 500);
-  restoreTerminal();
+  funcs::restoreTerminal();
   exit(0);
 }
 
