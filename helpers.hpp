@@ -1,5 +1,14 @@
 #include "declarations.hpp"
 
+// Helper to keep values in bounds without underflow
+template <typename T> T clamp_idx(T val, T min, T max) {
+  if (val < min)
+    return min;
+  if (val > max)
+    return max;
+  return val;
+}
+
 inline void settingsMenu(Globals &globals) {
   printLogo();
 
@@ -126,7 +135,8 @@ inline void assignPaths(Globals &globals) {
   globals.paths.history = fs::path(globals.paths.mediaplayer_dir) / "history";
   globals.paths.latest_media =
       fs::path(globals.paths.mediaplayer_dir) / "latest-media";
-  globals.paths.settings = fs::path(globals.paths.mediaplayer_dir) / "settings";
+  globals.paths.settings =
+      fs::path(globals.paths.mediaplayer_dir) / "settings.json";
 }
 
 inline void createFiles(const Globals &globals) {
