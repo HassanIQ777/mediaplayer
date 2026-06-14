@@ -186,8 +186,11 @@ int main(int argc, char *argv[]) {
             system(command.c_str());
 
             // after finishing:
-            const std::string msg = "Finished Playing " + File::getFileName(fp);
-            termuxSendToast(msg);
+            if (isMobileDevice) {
+              const std::string msg =
+                  "Finished Playing " + File::getFileName(fp);
+              termuxSendToast(msg);
+            }
           }
         }
       }
