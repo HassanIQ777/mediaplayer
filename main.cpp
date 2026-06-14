@@ -1,5 +1,6 @@
 /* @MediaPlayer by HassanIQ777 - Fixed Version */
 
+#include "ClipBoard.hpp"
 #include "helpers.hpp"
 #include "libutils/src/funcs.hpp"
 #include <algorithm>
@@ -197,7 +198,7 @@ int main(int argc, char *argv[]) {
       }
 
       // ACTION: Search
-      else if (key == "s" || (key == "S" && !isMobileDevice)) {
+      else if (key == "s") {
         print("\nSearch: ", color::A_ITALIC, color::A_BOLD, color::TXT_YELLOW);
         std::string search_string;
         std::getline(std::cin, search_string);
@@ -218,7 +219,18 @@ int main(int argc, char *argv[]) {
                       show_files_indices.size());
       }
 
-      else if (key == "S") {
+      else if (key == "S" && !isMobileDevice) {
+        try {
+          std::string uri = toFileUri(full_paths[show_files_indices[selected]]);
+          copyToClipboard(uri);
+          print("Copied: " + uri); // or however you display status
+        } catch (const std::exception &e) {
+          print(std::string("Clipboard failed: ") + e.what());
+        }
+        funcs::getKeyPress();
+      }
+
+      else if (key == "S" && isMobileDevice) {
         const std::string fp = full_paths[show_files_indices[selected]];
         funcs::printTimed("\nSharing " + fp + "\n", 5);
         termuxShareFile(fp);
