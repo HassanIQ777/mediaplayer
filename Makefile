@@ -73,7 +73,7 @@ $(LIB_UTILS_LIB):
 	fi
 
 run: all
-	@./$(BINDIR)/$(TARGET)
+	@./$(BINDIR)/$(TARGET) $(ARGS)
 
 clean:
 	-@rm -f $(OBJS)

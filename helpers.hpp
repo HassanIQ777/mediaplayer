@@ -19,7 +19,7 @@ inline void settingsMenu(Globals &globals) {
 
   print("\n");
 
-  print(color::TXT_YELLOW, "9) ", color::TXT_CYAN, "Go Back", color::A_RESET,
+  print(color::TXT_YELLOW, ",) ", color::TXT_CYAN, "Go Back", color::A_RESET,
         '\n');
 
   print(color::TXT_BLUE, "\nSelect option:", color::A_RESET, " _");
@@ -30,26 +30,16 @@ inline void settingsMenu(Globals &globals) {
 
 inline void parseSettingsMenuOption(Globals &globals,
                                     const std::string &option_str) {
-  int option;
-  try {
-    option = stoi(option_str);
-  } catch (...) {
-    return;
-  }
 
-  switch (option) {
-  case 1:
+  if (option_str == "9")
     setColumns(globals);
-    break;
 
-  case 9:
+  if (option_str == ",")
     globals.ui_state = UI_State::MAIN_MENU;
-    break;
-  }
 }
 
 inline void setColumns(Globals &globals) {
-  loadSettings(globals);
+  globals.settings.loadOrCreate(globals.paths.settings);
 
   print("\n");
 
@@ -68,7 +58,7 @@ inline void setColumns(Globals &globals) {
     return;
   }
 
-  if (amount < 0) {
+  if (amount == 0) {
     Log::info("Canceled operation.");
     funcs::getKeyPress();
     return;
@@ -76,7 +66,7 @@ inline void setColumns(Globals &globals) {
 
   globals.settings.columns = amount;
 
-  saveSettings(globals);
+  globals.settings.save(globals.paths.settings);
 }
 
 inline void addToLatestMedia(Globals &globals, const std::string &file) {
@@ -110,20 +100,6 @@ inline void addToLatestMedia(Globals &globals, const std::string &file) {
   }
 
   File::writefile(globals.paths.latest_media, result);
-}
-
-inline void loadSettings(Globals &globals) {
-  std::string fp = globals.paths.settings;
-
-  size_t columns = std::stoul(File::getFromINI(fp, "columns"));
-  globals.settings.columns = columns;
-}
-
-inline void saveSettings(Globals &globals) {
-  std::string fp = globals.paths.settings;
-
-  size_t columns = globals.settings.columns;
-  File::writeToINI(fp, "columns", funcs::str(columns));
 }
 
 inline void assignPaths(Globals &globals) {
@@ -163,14 +139,6 @@ inline void createFiles(const Globals &globals) {
     std::string fp = globals.paths.latest_media;
     File::createfile(fp);
     Log::debug("Successfully created '" + fp + "'");
-  }
-
-  if (!File::isfile(globals.paths.settings)) {
-    std::string fp = globals.paths.settings;
-    File::createfile(fp);
-    Log::debug("Successfully created '" + fp + "'");
-
-    File::appendline(fp, "columns" + globals.delimiter + "20");
   }
 }
 
@@ -237,7 +205,7 @@ inline void restoreTerminal() {
 }
 
 inline void SIGINT_handle(int) {
-  funcs::printTimed("Received interruption signal. ABORTING\n", 35, 500);
+  funcs::printTimed("\nReceived interruption signal. ABORTING\n", 10, 500);
   restoreTerminal();
   exit(0);
 }

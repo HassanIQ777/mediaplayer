@@ -1,6 +1,7 @@
 /* @MediaPlayer by HassanIQ777 - Fixed Version */
 
 #include "helpers.hpp"
+#include "libutils/src/funcs.hpp"
 #include <algorithm>
 #include <numeric>
 
@@ -25,7 +26,7 @@ int main(int argc, char *argv[]) {
   parseArgs(parser, globals);
   assignPaths(globals);
   createFiles(globals);
-  loadSettings(globals);
+  globals.settings.loadOrCreate(globals.paths.settings);
 
   const std::vector<std::string> exception_list =
       File::readfile(globals.paths.exception_list);
@@ -183,11 +184,15 @@ int main(int argc, char *argv[]) {
       else if (key == "h" || key == "H") {
         print("\n");
         print("Use arrow keys to move or skip pages\n");
-        print("[S] Share media\n");
+        if (isMobileDevice) {
+          print("[S] Share media\n");
+        }
         print("[r] Reset\n");
         print("[R] Restart (refetches files)\n");
         print("[f] Change sorting mode. Current Mode: ");
         print((is_alpha_sort ? "Alphabetical" : "Chronological"), "\n");
+        print("[,] Settings Menu\n");
+        print("[,] Latest Media\n");
         funcs::getKeyPress();
       }
 
@@ -300,6 +305,7 @@ int main(int argc, char *argv[]) {
     // ... Other states (SETTINGS) ...
     else if (globals.ui_state == UI_State::SETTINGS) {
       settingsMenu(globals);
+      // TODO: clamp to, from, and selected
     }
   }
 
