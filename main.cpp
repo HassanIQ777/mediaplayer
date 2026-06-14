@@ -193,10 +193,10 @@ int main(int argc, char *argv[]) {
 
       // ACTION: Search
       else if (key == "s" || (key == "S" && !isMobileDevice)) {
-        print("\nSearch: ", color::_ITALIC, color::_BOLD, color::TXT_YELLOW);
+        print("\nSearch: ", color::A_ITALIC, color::A_BOLD, color::TXT_YELLOW);
         std::string search_string;
         std::getline(std::cin, search_string);
-        print(color::_RESET);
+        print(color::A_RESET);
 
         search_string = funcs::lowercase(search_string);
 
@@ -326,20 +326,20 @@ void printfiles(const std::vector<size_t> &indices,
   for (size_t i = 0; i < funcs::getTerminalWidth(); i++)
     border += BORDER_CHAR;
 
-  std::cout << TXT_CYAN << "Select media " << _BOLD << selected + 1 << " / "
-            << indices.size() << ":" << _RESET << std::endl;
-  std::cout << TXT_BLUE << border << _RESET << std::endl;
+  std::cout << TXT_CYAN << "Select media " << A_BOLD << selected + 1 << " / "
+            << indices.size() << ":" << A_RESET << std::endl;
+  std::cout << TXT_BLUE << border << A_RESET << std::endl;
 
   for (size_t i = from; i < to; i++) {
     size_t file_index = indices[i];
     std::string display_name =
         trimStr(files[file_index], funcs::str(i + 1).length());
     if (i == selected) {
-      std::cout << _BOLD << TXT_YELLOW << i + 1 << _RESET << " " << _BOLD
+      std::cout << A_BOLD << TXT_YELLOW << i + 1 << A_RESET << " " << A_BOLD
                 << color::bg_rgb(80, 80, 80) << color::fg_rgb(120, 255, 120)
-                << display_name << _RESET << std::endl;
+                << display_name << A_RESET << std::endl;
     } else {
-      std::cout << TXT_YELLOW << i + 1 << _RESET << " " << display_name
+      std::cout << TXT_YELLOW << i + 1 << A_RESET << " " << display_name
                 << std::endl;
     }
   }
@@ -349,5 +349,5 @@ void printfiles(const std::vector<size_t> &indices,
     selected = 0;
   }
 
-  std::cout << TXT_BLUE << border << _RESET << std::endl;
+  std::cout << TXT_BLUE << border << A_RESET << std::endl;
 }

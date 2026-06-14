@@ -12,17 +12,17 @@ template <typename T> T clamp_idx(T val, T min, T max) {
 inline void settingsMenu(Globals &globals) {
   printLogo();
 
-  print("\n", color::TXT_GREEN, color::_BOLD, "Settings Menu", color::_RESET,
+  print("\n", color::TXT_GREEN, color::A_BOLD, "Settings Menu", color::A_RESET,
         "\n\n");
   print(color::TXT_YELLOW, "1) ", color::TXT_CYAN,
-        "Set columns = ", globals.settings.columns, color::_RESET, '\n');
+        "Set columns = ", globals.settings.columns, color::A_RESET, '\n');
 
   print("\n");
 
-  print(color::TXT_YELLOW, "9) ", color::TXT_CYAN, "Go Back", color::_RESET,
+  print(color::TXT_YELLOW, "9) ", color::TXT_CYAN, "Go Back", color::A_RESET,
         '\n');
 
-  print(color::TXT_BLUE, "\nSelect option:", color::_RESET, " _");
+  print(color::TXT_BLUE, "\nSelect option:", color::A_RESET, " _");
 
   std::string option = funcs::getKeyPress();
   parseSettingsMenuOption(globals, option);
@@ -53,11 +53,11 @@ inline void setColumns(Globals &globals) {
 
   print("\n");
 
-  print("\nNew max column number:\n> ", color::_ITALIC);
+  print("\nNew max column number:\n> ", color::A_ITALIC);
   std::string column;
   std::cin >> column;
   std::cin.ignore();
-  print(color::_RESET);
+  print(color::A_RESET);
 
   size_t amount;
   try {
@@ -248,8 +248,8 @@ inline void loadingBar(std::atomic<bool> &isLoading) {
                                         "⠦", "⠧", "⠇", "⠏"};
   while (isLoading.load(
       std::memory_order_acquire)) { // play animation while fetching files:
-    std::cout << "\r" << color::TXT_GREEN << color::_BOLD << BAR[i % BAR.size()]
-              << color::_RESET << " Fetching files ";
+    std::cout << "\r" << color::TXT_GREEN << color::A_BOLD
+              << BAR[i % BAR.size()] << color::A_RESET << " Fetching files ";
     std::cout.flush();
     funcs::msleep(100);
     i++;

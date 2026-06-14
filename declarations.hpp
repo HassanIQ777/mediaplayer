@@ -75,11 +75,11 @@ struct Globals {
 inline void printLogo() {
   std::string time_hours_mins = funcs::currentTime().substr(11, 5);
 
-  print(color::_BOLD);
+  print(color::A_BOLD);
   funcs::printLeftMiddleRight("", "Mediaplayer Settings", time_hours_mins);
-  print(color::_RESET);
+  print(color::A_RESET);
 
-  print(color::_RESET, "\n");
+  print(color::A_RESET, "\n");
 
   std::cout.flush();
 }
