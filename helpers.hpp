@@ -6,7 +6,7 @@ inline void settingsMenu(Globals &globals) {
   print("\n", color::TXT_GREEN, color::_BOLD, "Settings Menu", color::_RESET,
         "\n\n");
   print(color::TXT_YELLOW, "1) ", color::TXT_CYAN,
-        "Set columns = ", globals.columns, color::_RESET, '\n');
+        "Set columns = ", globals.settings.columns, color::_RESET, '\n');
 
   print("\n");
 
@@ -65,7 +65,7 @@ inline void setColumns(Globals &globals) {
     return;
   }
 
-  globals.columns = amount;
+  globals.settings.columns = amount;
 
   saveSettings(globals);
 }
@@ -107,13 +107,13 @@ inline void loadSettings(Globals &globals) {
   std::string fp = globals.paths.settings;
 
   size_t columns = std::stoul(File::getFromINI(fp, "columns"));
-  globals.columns = columns;
+  globals.settings.columns = columns;
 }
 
 inline void saveSettings(Globals &globals) {
   std::string fp = globals.paths.settings;
 
-  size_t columns = globals.columns;
+  size_t columns = globals.settings.columns;
   File::writeToINI(fp, "columns", funcs::str(columns));
 }
 
