@@ -6,8 +6,9 @@ Last update: 2025 Nov 06 */
 #define FUNCS_HPP
 
 #include <algorithm>
-#include <chrono>
 #include <cctype>
+#include <chrono>
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <iomanip>
@@ -30,27 +31,22 @@ Last update: 2025 Nov 06 */
 
 namespace funcs {
 
-template <typename T>
-void printTimed(T text, int cd = 0, int end_cd = 0);
+template <typename T> void printTimed(T text, int cd = 0, int end_cd = 0);
 
-template <typename T>
-void printCentered(T text, int cd = 0, int end_cd = 0);
+template <typename T> void printCentered(T text, int cd = 0, int end_cd = 0);
 
-template <typename T>
-void printRight(T text, int cd = 0, int end_cd = 0);
+template <typename T> void printRight(T text, int cd = 0, int end_cd = 0);
 
 inline void printLeftMiddleRight(const std::string &left,
                                  const std::string &middle = "",
                                  const std::string &right = "");
 
-template <typename T>
-void print(const T &value);
+template <typename T> void print(const T &value);
 
 template <typename T, typename... Args>
 void print(const T &value, const Args &...args);
 
-template <typename T>
-std::string str(const T &n);
+template <typename T> std::string str(const T &n);
 
 inline std::string lowercase(std::string text);
 inline std::string uppercase(std::string text);
@@ -58,6 +54,7 @@ inline void removeChar(std::string &text, char char_to_remove);
 inline void replaceChar(std::string &text, char old_char, char new_char);
 
 inline size_t getTerminalWidth();
+inline size_t getTerminalHeight();
 inline std::string getPlatform();
 inline void clearTerminal();
 inline std::string currentTime();
@@ -68,9 +65,29 @@ inline bool hasSequence(const std::string &text, const std::string &sequence);
 inline bool isNumber(const std::string &s);
 inline std::vector<std::string> split(const std::string &text, char delimiter);
 
+#ifdef _WIN32
+inline bool enableVirtualTerminalProcessing() {
+  static const bool enabled = []() {
+    HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hStdOut == INVALID_HANDLE_VALUE) {
+      return false;
+    }
+
+    DWORD mode = 0;
+    if (!GetConsoleMode(hStdOut, &mode)) {
+      return false;
+    }
+
+    mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    return SetConsoleMode(hStdOut, mode) != 0;
+  }();
+
+  return enabled;
+}
+#endif
+
 // Printing utilities
-template <typename T>
-void printTimed(T text, int cd, int end_cd) {
+template <typename T> void printTimed(T text, int cd, int end_cd) {
   const std::string string_text = funcs::str(text);
   if (cd == 0) {
     std::cout << string_text;
@@ -87,8 +104,7 @@ void printTimed(T text, int cd, int end_cd) {
   std::cout.flush();
 }
 
-template <typename T>
-void printCentered(T text, int cd, int end_cd) {
+template <typename T> void printCentered(T text, int cd, int end_cd) {
   std::string string_text = str(text);
   const size_t width = getTerminalWidth();
   if (string_text.length() > width) {
@@ -100,8 +116,7 @@ void printCentered(T text, int cd, int end_cd) {
   printTimed(string_text, cd, end_cd);
 }
 
-template <typename T>
-void printRight(T text, int cd, int end_cd) {
+template <typename T> void printRight(T text, int cd, int end_cd) {
   std::string string_text = str(text);
   const size_t width = getTerminalWidth();
   if (string_text.length() > width) {
@@ -134,10 +149,7 @@ inline void printLeftMiddleRight(const std::string &left,
             << std::string(padding_right, ' ') << r;
 }
 
-template <typename T>
-void print(const T &value) {
-  std::cout << value;
-}
+template <typename T> void print(const T &value) { std::cout << value; }
 
 template <typename T, typename... Args>
 void print(const T &value, const Args &...args) {
@@ -145,8 +157,7 @@ void print(const T &value, const Args &...args) {
   print(args...);
 }
 
-template <typename T>
-std::string str(const T &n) {
+template <typename T> std::string str(const T &n) {
   std::ostringstream stm;
   stm << n;
   return stm.str();
@@ -180,13 +191,35 @@ inline size_t getTerminalWidth() {
 
   return static_cast<size_t>(csbi.srWindow.Right - csbi.srWindow.Left + 1);
 #else
-  struct winsize w;
-  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) {
-    perror("ioctl");
+  struct winsize w{};
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1 || w.ws_col == 0) {
     return 80;
   }
 
   return static_cast<size_t>(w.ws_col);
+#endif
+}
+
+inline size_t getTerminalHeight() {
+#ifdef _WIN32
+  HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (hStdOut == INVALID_HANDLE_VALUE) {
+    return 24;
+  }
+
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  if (!GetConsoleScreenBufferInfo(hStdOut, &csbi)) {
+    return 24;
+  }
+
+  return static_cast<size_t>(csbi.srWindow.Bottom - csbi.srWindow.Top + 1);
+#else
+  struct winsize w{};
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1 || w.ws_row == 0) {
+    return 24;
+  }
+
+  return static_cast<size_t>(w.ws_row);
 #endif
 }
 
@@ -204,9 +237,13 @@ inline std::string getPlatform() {
 
 inline void clearTerminal() {
 #ifdef _WIN32
-  system("cls");
+  if (enableVirtualTerminalProcessing()) {
+    std::cout << "\033[2J\033[H";
+  } else {
+    system("cls");
+  }
 #else
-  system("clear");
+  std::cout << "\033[2J\033[H";
 #endif
 }
 
@@ -229,17 +266,43 @@ inline std::string getKeyPress() {
 
 #ifdef _WIN32
   int ch = _getch();
-  sequence += static_cast<char>(ch);
 
   if (ch == 0 || ch == 224) {
-    sequence += static_cast<char>(_getch());
-    sequence += static_cast<char>(_getch());
+    ch = _getch();
+    switch (ch) {
+    case 72:
+      return "\033[A";
+    case 80:
+      return "\033[B";
+    case 73:
+      return "\033[5";
+    case 81:
+      return "\033[6";
+    default:
+      sequence += '\0';
+      sequence += static_cast<char>(ch);
+      return sequence;
+    }
   }
+
+  if (ch == '\r') {
+    return "\n";
+  }
+  if (ch == '\b') {
+    return std::string(1, char(127));
+  }
+
+  sequence += static_cast<char>(ch);
 #else
   struct termios oldt, newt;
   unsigned char ch;
 
-  tcgetattr(STDIN_FILENO, &oldt);
+  if (tcgetattr(STDIN_FILENO, &oldt) != 0) {
+    ch = static_cast<unsigned char>(getchar());
+    sequence += static_cast<char>(ch);
+    return sequence;
+  }
+
   newt = oldt;
 
   newt.c_lflag &= ~(static_cast<unsigned int>(ICANON | ECHO));
@@ -273,8 +336,7 @@ inline bool hasSequence(const std::string &text, const std::string &sequence) {
 
 inline bool isNumber(const std::string &s) {
   try {
-    long double parsed = std::stold(s);
-    parsed += 0;
+    (void)std::stold(s);
   } catch (...) {
     return false;
   }
@@ -312,16 +374,29 @@ constexpr auto clamp(const T &n, const U &lo, const V &hi) {
 }
 
 inline void alternativeTerminal() {
+#ifdef _WIN32
+  if (enableVirtualTerminalProcessing()) {
+    std::cout << "\033[?1049h";
+  }
+#else
   std::cout << "\033[?1049h";
+#endif
 }
 
 inline void restoreTerminal() {
+#ifdef _WIN32
+  if (enableVirtualTerminalProcessing()) {
+    std::cout << "\033[?1049l";
+  }
+#else
   std::cout << "\033[?1049l";
+#endif
 }
 
 } // namespace funcs
 
-inline void funcs_staticAssert_impl(bool expression, const char *file, int line) {
+inline void funcs_staticAssert_impl(bool expression, const char *file,
+                                    int line) {
   if (!expression) {
     std::cerr << file << ":" << line << "\n";
     std::exit(EXIT_FAILURE);
@@ -329,19 +404,23 @@ inline void funcs_staticAssert_impl(bool expression, const char *file, int line)
 }
 
 inline void funcs_staticAssert_impl(bool expression, const std::string &msg,
-                                const char *file, int line) {
+                                    const char *file, int line) {
   if (!expression) {
     std::cerr << file << ":" << line << " -> " << msg << "\n";
     std::exit(EXIT_FAILURE);
   }
 }
 
-#define funcs_staticAssert(...)                                                   \
-  funcs_staticAssert_dispatch(__VA_ARGS__, funcs_staticAssert2,                   \
+#define funcs_staticAssert(...)                                                \
+  funcs_staticAssert_dispatch(__VA_ARGS__, funcs_staticAssert2,                \
                               funcs_staticAssert1)(__VA_ARGS__)
 #define funcs_staticAssert_dispatch(_1, _2, NAME, ...) NAME
-#define funcs_staticAssert1(expr) funcs_staticAssert_impl(expr, __FILE__, __LINE__)
-#define funcs_staticAssert2(expr, msg)                                            \
+#define funcs_staticAssert1(expr)                                              \
+  funcs_staticAssert_impl(expr, __FILE__, __LINE__)
+#define funcs_staticAssert2(expr, msg)                                         \
   funcs_staticAssert_impl(expr, msg, __FILE__, __LINE__)
+
+inline void cursorHide() { std::cout << "\033[?25l"; }
+inline void cursorShow() { std::cout << "\033[?25h"; }
 
 #endif // FUNCS_HPP

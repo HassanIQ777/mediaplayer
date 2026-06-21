@@ -199,20 +199,6 @@ inline void SIGINT_handle(int) {
   exit(0);
 }
 
-inline void loadingBar(std::atomic<bool> &isLoading) {
-  size_t i = 0;
-  const std::vector<std::string> BAR = {"⠋", "⠙", "⠹", "⠼", "⠴",
-                                        "⠦", "⠧", "⠇", "⠏"};
-  while (isLoading.load(
-      std::memory_order_acquire)) { // play animation while fetching files:
-    std::cout << "\r" << color::TXT_GREEN << color::A_BOLD
-              << BAR[i % BAR.size()] << color::A_RESET << " Fetching files ";
-    std::cout.flush();
-    funcs::msleep(100);
-    i++;
-  }
-}
-
 inline void termuxSendToast(std::string message) {
   std::string command =
       "termux-toast -s -g top -b \"#33FFFFFF\" -c yellow \"" + message + "\"";

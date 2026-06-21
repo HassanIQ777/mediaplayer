@@ -2,6 +2,7 @@
 
 #include "ClipBoard.hpp"
 #include "helpers.hpp"
+#include "libutils/src/LoadingBar.hpp"
 #include "libutils/src/funcs.hpp"
 #include <algorithm>
 #include <numeric>
@@ -25,6 +26,9 @@ int main(int argc, char *argv[]) {
   bool isMobileDevice = (getenv("ANDROID_DATA") != nullptr);
   bool launch_in_mpv = true;
 
+  Loadingbar::Spinner loading_bar{
+      {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 150, "Fetching files"};
+
   parseArgs(parser, globals);
   assignPaths(globals);
   createFiles(globals);
@@ -34,9 +38,6 @@ int main(int argc, char *argv[]) {
       File::readfile(globals.paths.exception_list);
 
   funcs::alternativeTerminal();
-
-  std::atomic<bool> is_loading{true};
-  std::thread loadingBarThread(loadingBar, std::ref(is_loading));
 
   const std::string home_folder = globals.paths.home_dir;
   std::vector<std::string> full_paths;
@@ -52,19 +53,14 @@ int main(int argc, char *argv[]) {
         full_paths.push_back(content);
     }
   } catch (...) {
-    is_loading = false;
-    if (loadingBarThread.joinable())
-      loadingBarThread.join();
+    loading_bar.stop();
     std::cerr << "\rError accessing: " << home_folder << std::endl;
     return -1;
   }
 
-  is_loading = false;
-  if (loadingBarThread.joinable())
-    loadingBarThread.join();
-
   if (full_paths.empty()) {
-    std::cerr << "No media found in '" << home_folder << "'" << std::endl;
+    loading_bar.stop();
+    std::cerr << "\nNo media found in '" << home_folder << "'" << std::endl;
     funcs::restoreTerminal();
     return -1;
   }
@@ -91,6 +87,7 @@ int main(int argc, char *argv[]) {
   size_t selected = 0;
   bool running = true;
   bool is_alpha_sort = false;
+  loading_bar.stop();
 
   while (running) {
     funcs::clearTerminal();
@@ -252,6 +249,9 @@ int main(int argc, char *argv[]) {
 
       // Reset
       else if (key == "r") {
+        print("\n");
+        Loadingbar::Spinner loading{
+            {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 150, "Refreshing files"};
         show_files_indices.resize(files.size());
         std::iota(show_files_indices.begin(), show_files_indices.end(), 0);
         selected = 0;
@@ -262,6 +262,9 @@ int main(int argc, char *argv[]) {
 
       // Full Reset
       else if (key == "R") {
+        print("\n");
+        Loadingbar::Spinner loading{
+            {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 150, "Refetching files"};
         full_paths.clear();
         const std::vector<std::string> contents =
             exception_list.empty()
@@ -288,6 +291,13 @@ int main(int argc, char *argv[]) {
 
       else if (key == "f") { // Toggle Sort
         is_alpha_sort = !is_alpha_sort;
+        print("\n");
+        Loadingbar::Spinner loading{{"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"},
+                                    150,
+                                    "Sorting files " +
+                                        ((is_alpha_sort)
+                                             ? funcs::str("Alphabetically")
+                                             : funcs::str("Chronologically"))};
         if (is_alpha_sort)
           std::sort(full_paths.begin(), full_paths.end());
         else
