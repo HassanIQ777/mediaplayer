@@ -2,6 +2,9 @@ CXX := g++
 TARGET := mediaplayer
 BINDIR := .
 
+PREFIX  := /usr/local
+INSTDIR := $(PREFIX)/bin
+
 # Library directory
 LIB_UTILS_DIR := libutils
 LIB_UTILS_LIB := $(LIB_UTILS_DIR)/libutils.a
@@ -45,7 +48,7 @@ DEBUG_FLAGS   := -std=c++20 -g -Og -DDEBUG $(WARNINGS) \
 # Default is release
 CXXFLAGS := $(RELEASE_FLAGS)
 
-.PHONY: all debug release clean run
+.PHONY: all debug release clean run install uninstall
 
 all: release
 
@@ -74,6 +77,16 @@ $(LIB_UTILS_LIB):
 
 run: all
 	@./$(BINDIR)/$(TARGET) $(ARGS)
+
+install: release
+	@echo "Installing $(TARGET) to $(INSTDIR)..."
+	@install -Dm755 $(BINDIR)/$(TARGET) $(INSTDIR)/$(TARGET)
+	@echo "$(TARGET) is now a system citizen. Run it from anywhere."
+
+uninstall:
+	@echo "Evicting $(TARGET) from $(INSTDIR)..."
+	@rm -f $(INSTDIR)/$(TARGET)
+	@echo "$(TARGET) has been yeeted into the void."
 
 clean:
 	-@rm -f $(OBJS)

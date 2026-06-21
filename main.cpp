@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   bool launch_in_mpv = true;
 
   Loadingbar::Spinner loading_bar{
-      {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 150, "Fetching files"};
+      {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 100, "Fetching files"};
 
   parseArgs(parser, globals);
   assignPaths(globals);
@@ -251,7 +251,7 @@ int main(int argc, char *argv[]) {
       else if (key == "r") {
         print("\n");
         Loadingbar::Spinner loading{
-            {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 150, "Refreshing files"};
+            {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 100, "Refreshing files"};
         show_files_indices.resize(files.size());
         std::iota(show_files_indices.begin(), show_files_indices.end(), 0);
         selected = 0;
@@ -264,7 +264,7 @@ int main(int argc, char *argv[]) {
       else if (key == "R") {
         print("\n");
         Loadingbar::Spinner loading{
-            {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 150, "Refetching files"};
+            {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 100, "Refetching files"};
         full_paths.clear();
         const std::vector<std::string> contents =
             exception_list.empty()
@@ -293,7 +293,7 @@ int main(int argc, char *argv[]) {
         is_alpha_sort = !is_alpha_sort;
         print("\n");
         Loadingbar::Spinner loading{{"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"},
-                                    150,
+                                    100,
                                     "Sorting files " +
                                         ((is_alpha_sort)
                                              ? funcs::str("Alphabetically")
