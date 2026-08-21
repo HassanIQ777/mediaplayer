@@ -1,4 +1,4 @@
-/* @MediaPlayer by HassanIQ777 - Fixed Version */
+/* @MediaPlayer by HassanIQ777 */
 
 #include "ClipBoard.hpp"
 #include "helpers.hpp"
@@ -233,8 +233,8 @@ int main(int argc, char *argv[]) {
         print("\n");
         try {
           std::string uri = toFileUri(full_paths[show_files_indices[selected]]);
-          if(!File::isfile(full_paths[show_files_indices[selected]]){
-				continue;
+          if (!File::isfile(full_paths[show_files_indices[selected]])) {
+            continue;
           }
           copyToClipboard(uri);
           print("Copied: " + uri); // or however you display status
@@ -304,9 +304,11 @@ int main(int argc, char *argv[]) {
         if (is_alpha_sort)
           std::sort(full_paths.begin(), full_paths.end());
         else
-          full_paths = File::sortChronological(full_paths); // TODO: THIS CRASHES THE PROGRAM IF A SINGLE FILE DOESN'T EXIST
+          full_paths = File::sortChronological(
+              full_paths); // TODO: THIS CRASHES THE PROGRAM IF A SINGLE FILE
+                           // DOESN'T EXIST
 
-        refreshFiles(files, full_paths); 
+        refreshFiles(files, full_paths);
         std::iota(show_files_indices.begin(), show_files_indices.end(), 0);
       }
 
