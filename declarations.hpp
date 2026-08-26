@@ -3,20 +3,11 @@
 #ifndef DECLARATIONS
 #define DECLARATIONS
 
-#include <atomic>
-#include <csignal>
-#include <fstream>
-#include <map>
-#include <numeric> // std::iota
-#include <string>
-#include <thread>
-
 #include "json.hpp"
-#include "libutils/src/CLIParser.hpp"
-#include "libutils/src/File.hpp"
-#include "libutils/src/Log.hpp"
 #include "libutils/src/color.hpp"
 #include "libutils/src/funcs.hpp"
+#include <fstream>
+#include <string>
 
 const std::string BORDER_CHAR = "─";
 using funcs::print;
@@ -32,6 +23,7 @@ enum class UI_State { MAIN_MENU, SETTINGS, LATEST_MEDIA };
 
 struct Settings {
   size_t columns = 15;
+  bool is_audio_only = false;
 
   // The canonical "what a fresh Settings looks like"
   static Settings defaults() { return Settings{}; } // just uses member defaults
@@ -41,10 +33,13 @@ struct Settings {
     // .value() = "give me this key, or this fallback" — never throws on missing
     // keys
     s.columns = j.value("columns", s.columns);
+    s.is_audio_only = j.value("is_audio_only", s.is_audio_only);
     return s;
   }
 
-  json toJson() const { return json{{"columns", columns}}; }
+  json toJson() const {
+    return json{{"columns", columns}, {"is_audio_only", is_audio_only}};
+  }
 
   void save(const std::string &filepath) {
     // Make sure parent dirs exist first (no directory = no file = sad ofstream)

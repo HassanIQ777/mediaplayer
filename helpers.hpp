@@ -1,5 +1,11 @@
 #include "declarations.hpp"
+#include "libutils/src/CLIParser.hpp"
 #include "libutils/src/File.hpp"
+#include "libutils/src/Log.hpp"
+#include "libutils/src/color.hpp"
+#include "libutils/src/funcs.hpp"
+#include <ios>
+#include <map>
 
 inline void settingsMenu(Globals &globals) {
   printLogo();
@@ -8,6 +14,11 @@ inline void settingsMenu(Globals &globals) {
         "\n\n");
   print(color::TXT_YELLOW, "1) ", color::TXT_CYAN,
         "Set columns = ", globals.settings.columns, color::A_RESET, '\n');
+  print(color::TXT_YELLOW, "2) ", color::TXT_CYAN,
+        "Audio only = ", std::boolalpha, globals.settings.is_audio_only,
+        color::A_RESET, '\n');
+  print(color::TXT_YELLOW, "3) ", color::TXT_CYAN, "Clear latest media history",
+        color::A_RESET, '\n');
 
   print("\n");
 
@@ -23,10 +34,13 @@ inline void settingsMenu(Globals &globals) {
 inline void parseSettingsMenuOption(Globals &globals,
                                     const std::string &option_str) {
 
-  if (option_str == "1")
+  if (option_str == "1") {
     setColumns(globals);
-
-  if (option_str == ",") {
+  } else if (option_str == "2") {
+    globals.settings.is_audio_only = !globals.settings.is_audio_only;
+  } else if (option_str == "3") {
+    File::writefile(globals.paths.latest_media, {});
+  } else if (option_str == ",") {
     globals.ui_state = UI_State::MAIN_MENU;
   }
 }
@@ -194,6 +208,7 @@ inline std::string trimStr(std::string text, size_t i_width) {
 }
 
 inline void SIGINT_handle(int) {
+  print(color::A_RESET);
   funcs::printTimed("\nReceived interruption signal. ABORTING\n", 10, 500);
   funcs::restoreTerminal();
   exit(0);

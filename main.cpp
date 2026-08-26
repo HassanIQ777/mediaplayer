@@ -5,7 +5,8 @@
 #include "libutils/src/LoadingBar.hpp"
 #include "libutils/src/funcs.hpp"
 #include <algorithm>
-#include <numeric>
+#include <csignal>
+#include <numeric> // std::iota
 #include <string>
 
 using namespace color;
@@ -17,7 +18,7 @@ void printfiles(const std::vector<size_t> &indices,
 int main(int argc, char *argv[]) {
   Globals globals;
   globals.ui_state = UI_State::MAIN_MENU;
-  globals.VERSION = "3.0";
+  globals.VERSION = "3.1";
   globals.delimiter = std::string(1, 0x1F);
   CLIParser parser(argc, argv);
 
@@ -26,10 +27,10 @@ int main(int argc, char *argv[]) {
   bool isMobileDevice = (getenv("ANDROID_DATA") != nullptr);
   bool launch_in_mpv = true;
 
+  parseArgs(parser, globals);
   Loadingbar::Spinner loading_bar{
       {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 100, "Fetching files"};
 
-  parseArgs(parser, globals);
   assignPaths(globals);
   createFiles(globals);
   globals.settings.loadOrCreate(globals.paths.settings);
@@ -167,7 +168,8 @@ int main(int argc, char *argv[]) {
           File::insertline(globals.paths.history,
                            fp + globals.delimiter + funcs::currentTime(), 0);
 
-          if (isMobileDevice && isVideoFile(fp) && launch_in_mpv) {
+          if (isMobileDevice && isVideoFile(fp) && launch_in_mpv &&
+              !globals.settings.is_audio_only) {
             const std::string command =
                 "am start -a android.intent.action.VIEW -d \"file://" + fp +
                 "\" -n is.xyz.mpv/.MPVActivity";
@@ -179,7 +181,7 @@ int main(int argc, char *argv[]) {
             print(path.remove_filename().string(), "\n");
             print("└── ", File::getFileName(fp), "\n\n");
 
-            const std::string command = "mpv \"" + fp + "\"";
+            const std::string command = "mpv --no-video \"" + fp + "\"";
             system(command.c_str());
 
             // after finishing:
@@ -213,6 +215,10 @@ int main(int argc, char *argv[]) {
         std::string search_string;
         std::getline(std::cin, search_string);
         print(color::A_RESET);
+
+        if (search_string.size() == 0) {
+          continue;
+        }
 
         search_string = funcs::lowercase(search_string);
 
