@@ -40,6 +40,8 @@ inline void parseSettingsMenuOption(Globals &globals,
     globals.settings.is_audio_only = !globals.settings.is_audio_only;
   } else if (option_str == "3") {
     File::writefile(globals.paths.latest_media, {});
+    print("\nCleared latest media file.\n");
+    funcs::getKeyPress();
   } else if (option_str == ",") {
     globals.ui_state = UI_State::MAIN_MENU;
   }

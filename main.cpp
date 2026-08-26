@@ -162,7 +162,7 @@ int main(int argc, char *argv[]) {
         if (show_files_indices.empty())
           continue;
         const std::string fp = full_paths[show_files_indices[selected]];
-
+      
         if (File::isfile(fp)) {
           addToLatestMedia(globals, fp);
           File::insertline(globals.paths.history,
@@ -208,7 +208,7 @@ int main(int argc, char *argv[]) {
         print("[f] Change sorting mode. Current Mode: ");
         print((is_alpha_sort ? "Alphabetical" : "Chronological"), "\n");
         print("[,] Settings Menu\n");
-        print("[,] Latest Media\n");
+        print("[.] Latest Media\n");
         funcs::getKeyPress();
       }
 
