@@ -181,7 +181,10 @@ int main(int argc, char *argv[]) {
             print(path.remove_filename().string(), "\n");
             print("└── ", File::getFileName(fp), "\n\n");
 
-            const std::string command = "mpv --no-video \"" + fp + "\"";
+            std::string command = "mpv \"" + fp + "\"";
+            if(globals.settings.is_audio_only){
+              command += " --no-video";
+            }
             system(command.c_str());
 
             // after finishing:
