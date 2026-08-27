@@ -25,24 +25,22 @@ struct Settings {
   size_t columns = 15;
   bool is_audio_only = false;
 
-  // The canonical "what a fresh Settings looks like"
-  static Settings defaults() { return Settings{}; } // just uses member defaults
+  static Settings defaults() { return Settings{}; }
 
   static Settings fromJson(const json &j) {
-    Settings s = defaults(); // start from defaults, not garbage
-    // .value() = "give me this key, or this fallback" — never throws on missing
-    // keys
+    Settings s = defaults(); // start from defaults
     s.columns = j.value("columns", s.columns);
     s.is_audio_only = j.value("is_audio_only", s.is_audio_only);
     return s;
   }
 
   json toJson() const {
-    return json{{"columns", columns}, {"is_audio_only", is_audio_only}};
+    return json{{"columns", columns}, 
+                {"is_audio_only", is_audio_only}};
   }
 
   void save(const std::string &filepath) {
-    // Make sure parent dirs exist first (no directory = no file = sad ofstream)
+    // Make sure parent dirs exist first
     std::filesystem::create_directories(
         std::filesystem::path(filepath).parent_path());
 
@@ -50,7 +48,7 @@ struct Settings {
     if (!file.is_open())
       throw std::runtime_error("save(): couldn't open file: " + filepath);
 
-    file << toJson().dump(4); // 4-space indent, because we're not animals
+    file << toJson().dump(4);
 
     if (!file.good())
       throw std::runtime_error("save(): write failed for: " + filepath);
@@ -62,8 +60,8 @@ struct Settings {
 
     if (!fs::exists(filepath)) {
       *this = defaults();
-      save(filepath); // write the defaults so the file exists next time
-      return true;    // "hey, I was born just now"
+      save(filepath);
+      return true;
     }
 
     std::ifstream file(filepath);
@@ -72,18 +70,16 @@ struct Settings {
 
     json data;
     try {
-      file >> data;
-    } catch (const json::parse_error &e) {
-      // File exists but is cursed — fall back to defaults, overwrite the crime
-      // scene
+      file >> data; // parsing happens here
+      *this = fromJson(data);
+    } catch (const json::exception &e) {
+
       *this = defaults();
       save(filepath);
-      return true; // "I was reborn"
+      return true;
     }
 
-    *this =
-        fromJson(data); // fromJson already merges with defaults via .value()
-    return false;       // "I remembered who I was"
+    return false;
   }
 };
 

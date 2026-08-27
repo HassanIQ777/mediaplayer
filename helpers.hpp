@@ -37,7 +37,9 @@ inline void parseSettingsMenuOption(Globals &globals,
   if (option_str == "1") {
     setColumns(globals);
   } else if (option_str == "2") {
+    globals.settings.loadOrCreate(globals.paths.settings);
     globals.settings.is_audio_only = !globals.settings.is_audio_only;
+    globals.settings.save(globals.paths.settings);
   } else if (option_str == "3") {
     File::writefile(globals.paths.latest_media, {});
     print("\nCleared latest media file.\n");

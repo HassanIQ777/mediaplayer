@@ -18,7 +18,7 @@ void printfiles(const std::vector<size_t> &indices,
 int main(int argc, char *argv[]) {
   Globals globals;
   globals.ui_state = UI_State::MAIN_MENU;
-  globals.VERSION = "3.1";
+  globals.VERSION = "3.2";
   globals.delimiter = std::string(1, 0x1F);
   CLIParser parser(argc, argv);
 
@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
         if (search_string.size() == 0) {
           continue;
         }
-
+        
         search_string = funcs::lowercase(search_string);
 
         show_files_indices.clear();
@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {
             continue;
           }
           copyToClipboard(uri);
-          print("Copied: " + uri); // or however you display status
+          print("Copied: " + uri); 
         } catch (const std::exception &e) {
           print(std::string("Clipboard failed: ") + e.what());
         }
