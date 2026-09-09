@@ -6,6 +6,7 @@
 #include "libutils/src/funcs.hpp"
 #include <ios>
 #include <map>
+#include <string>
 
 inline void settingsMenu(Globals &globals) {
   printLogo();
@@ -218,13 +219,13 @@ inline void SIGINT_handle(int) {
   exit(0);
 }
 
-inline std::string quickTIme(){
+inline std::string quickTime() {
   const auto now = std::chrono::system_clock::now();
   const std::time_t time = std::chrono::system_clock::to_time_t(now);
   const std::tm tm = *std::localtime(&time);
 
   std::ostringstream oss;
-  oss << std::put_time(&tm, "%H:%M %p");
+  oss << std::put_time(&tm, "%I:%M %p");
   return oss.str();
 }
 

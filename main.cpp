@@ -53,13 +53,13 @@ int main(int argc, char *argv[]) {
     }
   } catch (...) {
     loading_bar.stop();
-    std::cerr << "\rError accessing: " << home_folder << std::endl;
+    std::cerr << "\rError accessing: " << home_folder << "\n";
     return -1;
   }
 
   if (full_paths.empty()) {
     loading_bar.stop();
-    std::cerr << "\nNo media found in '" << home_folder << "'" << std::endl;
+    std::cerr << "\nNo media found in '" << home_folder << "'" << "\n";
     funcs::restoreTerminal();
     return -1;
   }
@@ -360,7 +360,7 @@ int main(int argc, char *argv[]) {
 
   funcs::restoreTerminal();
 
-  std::cout << std::endl;
+  std::cout << "\n";
   funcs::printCentered("Thanks for using MediaPlayer!\n");
   funcs::printCentered("By HassanIQ777\n");
 }
@@ -381,10 +381,12 @@ void printfiles(const std::vector<size_t> &indices,
   for (size_t i = 0; i < funcs::getTerminalWidth(); i++)
     border += BORDER_CHAR;
 
-  std::cout << TXT_CYAN << "Select media " << A_BOLD << selected + 1 << " / "
-            << indices.size() << ":" << A_RESET << std::endl;
-  // funcs::printLeftMiddleRight("");
-  std::cout << TXT_BLUE << border << A_RESET << std::endl;
+  print(TXT_CYAN, A_BOLD);
+  std::string select_media = +"Select media " + funcs::str(selected + 1) +
+                             " / " + funcs::str(indices.size()) + ":";
+
+  funcs::printLeftMiddleRight(select_media, "", quickTime());
+  std::cout << A_RESET << "\n" << TXT_BLUE << border << A_RESET << "\n";
 
   for (size_t i = from; i < to; i++) {
     size_t file_index = indices[i];
@@ -393,17 +395,18 @@ void printfiles(const std::vector<size_t> &indices,
     if (i == selected) {
       std::cout << A_BOLD << TXT_YELLOW << i + 1 << A_RESET << " " << A_BOLD
                 << color::bg_rgb(80, 80, 80) << color::fg_rgb(120, 255, 120)
-                << display_name << A_RESET << std::endl;
+                << display_name << A_RESET << "\n";
     } else {
       std::cout << TXT_YELLOW << i + 1 << A_RESET << " " << display_name
-                << std::endl;
+                << "\n";
     }
   }
 
   if (to - from <= 0) {
-    std::cout << "No files to display." << std::endl;
+    std::cout << "No files to display." << "\n";
     selected = 0;
   }
 
-  std::cout << TXT_BLUE << border << A_RESET << std::endl;
+  std::cout << TXT_BLUE << border << A_RESET
+            << std::endl; // the only endl we need
 }
