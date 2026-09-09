@@ -85,8 +85,8 @@ struct Settings {
 
 struct Globals {
   Paths paths;
-  UI_State ui_state;
-  std::string VERSION;
+  UI_State ui_state = UI_State::MAIN_MENU;
+  std::string VERSION = "26.9.9";
   std::string delimiter;
   Settings settings;
 };

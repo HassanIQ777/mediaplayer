@@ -17,8 +17,6 @@ void printfiles(const std::vector<size_t> &indices,
 
 int main(int argc, char *argv[]) {
   Globals globals;
-  globals.ui_state = UI_State::MAIN_MENU;
-  globals.VERSION = "3.2";
   globals.delimiter = std::string(1, 0x1F);
   CLIParser parser(argc, argv);
 
@@ -162,7 +160,7 @@ int main(int argc, char *argv[]) {
         if (show_files_indices.empty())
           continue;
         const std::string fp = full_paths[show_files_indices[selected]];
-      
+
         if (File::isfile(fp)) {
           addToLatestMedia(globals, fp);
           File::insertline(globals.paths.history,
@@ -182,7 +180,7 @@ int main(int argc, char *argv[]) {
             print("└── ", File::getFileName(fp), "\n\n");
 
             std::string command = "mpv \"" + fp + "\"";
-            if(globals.settings.is_audio_only){
+            if (globals.settings.is_audio_only) {
               command += " --no-video";
             }
             system(command.c_str());
@@ -222,7 +220,7 @@ int main(int argc, char *argv[]) {
         if (search_string.size() == 0) {
           continue;
         }
-        
+
         search_string = funcs::lowercase(search_string);
 
         show_files_indices.clear();
@@ -246,7 +244,7 @@ int main(int argc, char *argv[]) {
             continue;
           }
           copyToClipboard(uri);
-          print("Copied: " + uri); 
+          print("Copied: " + uri);
         } catch (const std::exception &e) {
           print(std::string("Clipboard failed: ") + e.what());
         }
@@ -313,9 +311,7 @@ int main(int argc, char *argv[]) {
         if (is_alpha_sort)
           std::sort(full_paths.begin(), full_paths.end());
         else
-          full_paths = File::sortChronological(
-              full_paths); // TODO: THIS CRASHES THE PROGRAM IF A SINGLE FILE
-                           // DOESN'T EXIST
+          full_paths = File::sortChronological(full_paths);
 
         refreshFiles(files, full_paths);
         std::iota(show_files_indices.begin(), show_files_indices.end(), 0);
@@ -387,6 +383,7 @@ void printfiles(const std::vector<size_t> &indices,
 
   std::cout << TXT_CYAN << "Select media " << A_BOLD << selected + 1 << " / "
             << indices.size() << ":" << A_RESET << std::endl;
+  // funcs::printLeftMiddleRight("");
   std::cout << TXT_BLUE << border << A_RESET << std::endl;
 
   for (size_t i = from; i < to; i++) {

@@ -218,6 +218,16 @@ inline void SIGINT_handle(int) {
   exit(0);
 }
 
+inline std::string quickTIme(){
+  const auto now = std::chrono::system_clock::now();
+  const std::time_t time = std::chrono::system_clock::to_time_t(now);
+  const std::tm tm = *std::localtime(&time);
+
+  std::ostringstream oss;
+  oss << std::put_time(&tm, "%H:%M %p");
+  return oss.str();
+}
+
 inline void termuxSendToast(std::string message) {
   std::string command =
       "termux-toast -s -g top -b \"#33FFFFFF\" -c yellow \"" + message + "\"";
