@@ -37,7 +37,6 @@ int main(int argc, char *argv[]) {
   const std::vector<std::string> exception_list =
       File::readfile(globals.paths.exception_list);
 
-
   const std::string home_folder = globals.paths.home_dir;
   std::vector<std::string> full_paths;
 

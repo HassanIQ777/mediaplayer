@@ -1,10 +1,8 @@
 // declarations.hpp
 
-#ifndef DECLARATIONS
-#define DECLARATIONS
+#pragma once
 
 #include "json.hpp"
-#include "libutils/src/color.hpp"
 #include "libutils/src/funcs.hpp"
 #include <fstream>
 #include <string>
@@ -35,8 +33,7 @@ struct Settings {
   }
 
   json toJson() const {
-    return json{{"columns", columns}, 
-                {"is_audio_only", is_audio_only}};
+    return json{{"columns", columns}, {"is_audio_only", is_audio_only}};
   }
 
   void save(const std::string &filepath) {
@@ -86,25 +83,12 @@ struct Settings {
 struct Globals {
   Paths paths;
   UI_State ui_state = UI_State::MAIN_MENU;
-  std::string VERSION = "26.9.9";
+  std::string VERSION = "26.9.22";
   std::string delimiter;
   Settings settings;
 };
 
-inline void printLogo() {
-  std::string time_hours_mins = funcs::currentTime().substr(11, 5);
-
-  print(color::A_BOLD);
-  funcs::printLeftMiddleRight("", "Mediaplayer Settings", time_hours_mins);
-  print(color::A_RESET);
-
-  print(color::A_RESET, "\n");
-
-  std::cout.flush();
-}
 void settingsMenu(Globals &globals);
 void parseSettingsMenuOption(Globals &globals, const std::string &option_str);
 
 void setColumns(Globals &globals);
-
-#endif

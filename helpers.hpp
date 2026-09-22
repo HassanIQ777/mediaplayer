@@ -1,3 +1,5 @@
+#pragma once
+
 #include "declarations.hpp"
 #include "libutils/src/CLIParser.hpp"
 #include "libutils/src/File.hpp"
@@ -7,6 +9,28 @@
 #include <ios>
 #include <map>
 #include <string>
+
+inline std::string quickTime() {
+  const auto now = std::chrono::system_clock::now();
+  const std::time_t time = std::chrono::system_clock::to_time_t(now);
+  const std::tm tm = *std::localtime(&time);
+
+  std::ostringstream oss;
+  oss << std::put_time(&tm, "%I:%M %p");
+  return oss.str();
+}
+
+inline void printLogo() {
+  std::string time_hours_mins = quickTime();
+
+  print(color::A_BOLD);
+  funcs::printLeftMiddleRight("", "Mediaplayer Settings", time_hours_mins);
+  print(color::A_RESET);
+
+  print(color::A_RESET, "\n");
+
+  std::cout.flush();
+}
 
 inline void settingsMenu(Globals &globals) {
   printLogo();
@@ -217,16 +241,6 @@ inline void SIGINT_handle(int) {
   funcs::printTimed("\nReceived interruption signal. ABORTING\n", 10, 500);
   funcs::restoreTerminal();
   exit(0);
-}
-
-inline std::string quickTime() {
-  const auto now = std::chrono::system_clock::now();
-  const std::time_t time = std::chrono::system_clock::to_time_t(now);
-  const std::tm tm = *std::localtime(&time);
-
-  std::ostringstream oss;
-  oss << std::put_time(&tm, "%I:%M %p");
-  return oss.str();
 }
 
 inline void termuxSendToast(std::string message) {
