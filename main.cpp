@@ -9,8 +9,6 @@
 #include <numeric> // std::iota
 #include <string>
 
-using namespace color;
-
 void printfiles(const std::vector<size_t> &indices,
                 const std::vector<std::string> &files, size_t from, size_t to,
                 size_t selected);
@@ -360,13 +358,15 @@ int main(int argc, char *argv[]) {
   funcs::restoreTerminal();
 
   std::cout << "\n";
-  funcs::printCentered("Thanks for using MediaPlayer!\n");
+  funcs::printCentered("Thanks for using Mediaplayer!\n");
   funcs::printCentered("By HassanIQ777\n");
 }
 
 void printfiles(const std::vector<size_t> &indices,
                 const std::vector<std::string> &files, size_t from, size_t to,
                 size_t selected) {
+  using namespace color;
+
   from = std::max(0UL, std::min(from, indices.size() - 1));
   to = std::max(from, std::min(to, indices.size()));
   selected = std::max(from, std::min(selected, to - 1));

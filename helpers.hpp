@@ -184,15 +184,19 @@ inline void parseArgs(CLIParser &parser, Globals &globals) {
               << "  <PATH>\n"
               << "  -v    to show version number\n";
   };
-  if (parser.hasFlag("-v")) {
-    std::cout << "MediaPlayer version " << globals.VERSION << std::endl;
+
+  int argc = parser.getArgc();
+  if (argc == 2 && parser.hasFlag("-v")) {
+    std::cout << "Mediaplayer version " << globals.VERSION << std::endl;
     exit(EXIT_SUCCESS);
   } else if (parser.hasFlag("-h") || parser.hasFlag("--help") ||
-             parser.getArgc() == 1) {
+             parser.getArgc() > 2) {
     printHelp();
     exit(EXIT_SUCCESS);
   }
-
+  // if (argc == 1) {
+  // if()
+  // }
   globals.paths.home_dir = parser.getArg(1);
   if (!File::isdirectory(globals.paths.home_dir)) {
     Log::error(true, "'", globals.paths.home_dir,
