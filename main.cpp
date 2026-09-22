@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
   CLIParser parser(argc, argv);
 
   std::signal(SIGINT, SIGINT_handle);
+  funcs::alternativeTerminal();
 
   bool isMobileDevice = (getenv("ANDROID_DATA") != nullptr);
   bool launch_in_mpv = true;
@@ -36,7 +37,6 @@ int main(int argc, char *argv[]) {
   const std::vector<std::string> exception_list =
       File::readfile(globals.paths.exception_list);
 
-  funcs::alternativeTerminal();
 
   const std::string home_folder = globals.paths.home_dir;
   std::vector<std::string> full_paths;
