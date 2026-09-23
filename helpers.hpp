@@ -201,15 +201,16 @@ inline void parseArgs(CLIParser &parser, Globals &globals) {
   if (argc == 1) {
     const char *home_dir = getenv("HOME");
     if (!home_dir) {
+      funcs::restoreTerminal();
       Log::error(true, "Couldn't find the home directory.");
     }
     globals.paths.home_dir = home_dir;
   } else {
     globals.paths.home_dir = parser.getArg(1);
     if (!File::isdirectory(globals.paths.home_dir)) {
+      funcs::restoreTerminal();
       Log::error(true, "'", globals.paths.home_dir,
                  "' is not a directory. Exiting program");
-      funcs::restoreTerminal();
     }
   }
 }
