@@ -6,6 +6,8 @@
 #include "libutils/src/Log.hpp"
 #include "libutils/src/color.hpp"
 #include "libutils/src/funcs.hpp"
+#include <cstdlib>
+#include <filesystem>
 #include <ios>
 #include <map>
 #include <string>
@@ -179,10 +181,12 @@ inline void createFiles(const Globals &globals) {
 }
 
 inline void parseArgs(CLIParser &parser, Globals &globals) {
-  auto printHelp = []() {
-    std::cerr << "Usage:\n"
-              << "  <PATH>\n"
-              << "  -v    to show version number\n";
+  const std::string program_name = fs::absolute(parser.getArg(0));
+  auto printHelp = [&program_name]() {
+    print("Usage:\n");
+    print(program_name, "           start program at $HOME\n");
+    print(program_name, " <PATH>    specify custom home directory\n");
+    print(program_name, " -v        to show version number\n");
   };
 
   int argc = parser.getArgc();
@@ -194,14 +198,19 @@ inline void parseArgs(CLIParser &parser, Globals &globals) {
     printHelp();
     exit(EXIT_SUCCESS);
   }
-  // if (argc == 1) {
-  // if()
-  // }
-  globals.paths.home_dir = parser.getArg(1);
-  if (!File::isdirectory(globals.paths.home_dir)) {
-    Log::error(true, "'", globals.paths.home_dir,
-               "' is not a directory. Exiting program");
-    funcs::restoreTerminal();
+  if (argc == 1) {
+    const char *home_dir = getenv("HOME");
+    if (!home_dir) {
+      Log::error(true, "Couldn't find the home directory.");
+    }
+    globals.paths.home_dir = home_dir;
+  } else {
+    globals.paths.home_dir = parser.getArg(1);
+    if (!File::isdirectory(globals.paths.home_dir)) {
+      Log::error(true, "'", globals.paths.home_dir,
+                 "' is not a directory. Exiting program");
+      funcs::restoreTerminal();
+    }
   }
 }
 

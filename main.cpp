@@ -19,12 +19,12 @@ int main(int argc, char *argv[]) {
   CLIParser parser(argc, argv);
 
   std::signal(SIGINT, SIGINT_handle);
-  funcs::alternativeTerminal();
 
   bool isMobileDevice = (getenv("ANDROID_DATA") != nullptr);
   bool launch_in_mpv = true;
 
   parseArgs(parser, globals);
+  funcs::alternativeTerminal();
   Loadingbar::Spinner loading_bar{
       {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 100, "Fetching files"};
 
