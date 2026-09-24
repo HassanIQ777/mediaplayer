@@ -6,6 +6,7 @@
 #include "libutils/src/funcs.hpp"
 #include <algorithm>
 #include <csignal>
+#include <cstdio>
 #include <numeric> // std::iota
 #include <string>
 
@@ -140,7 +141,8 @@ int main(int argc, char *argv[]) {
         if (show_files_indices.size() < step)
           from = 0;
         to = from + step;
-      } else if (key == "q" || key == "Q") {
+      } else if (key == "q" || key == "Q" || key[0] == '\033') {
+        fflush(stdin);
         std::string confirm;
         print("\nConfirm exit [Y/n]?: ");
         std::getline(std::cin, confirm);

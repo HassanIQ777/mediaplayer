@@ -22,11 +22,12 @@ inline std::string quickTime() {
   return oss.str();
 }
 
-inline void printLogo() {
+inline void printLogo(Globals &g) {
   std::string time_hours_mins = quickTime();
 
   print(color::A_BOLD);
-  funcs::printLeftMiddleRight("", "Mediaplayer Settings", time_hours_mins);
+  funcs::printLeftMiddleRight(g.VERSION, "Mediaplayer Settings",
+                              time_hours_mins);
   print(color::A_RESET);
 
   print(color::A_RESET, "\n");
@@ -35,7 +36,7 @@ inline void printLogo() {
 }
 
 inline void settingsMenu(Globals &globals) {
-  printLogo();
+  printLogo(globals);
 
   print("\n", color::TXT_GREEN, color::A_BOLD, "Settings Menu", color::A_RESET,
         "\n\n");
