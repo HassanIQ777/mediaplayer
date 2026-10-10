@@ -6,8 +6,8 @@ Last update: 2026 Mar 26 */
 #define NUMUTILS_HPP
 
 #include <algorithm>
-#include <cstdlib>
 #include <cstdint>
+#include <cstdlib>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -18,16 +18,10 @@ namespace numutils {
   @ Insert thousands separators
   @ Example: 1234567 -> "1,234,567"
  */
-inline std::string groupDigits(long long value, char separator = ',') {
-  bool negative = value < 0;
-  std::string s = std::to_string(std::llabs(value));
-
-  for (int i = s.length() - 3; i > 0; i -= 3)
-    s.insert(i, 1, separator);
-
-  if (negative)
-    s.insert(s.begin(), '-');
-
+inline std::string groupDigits(size_t n) {
+  std::string s = std::to_string(n);
+  for (long i = static_cast<long>(s.size()) - 3; i > 0; i -= 3)
+    s.insert(static_cast<size_t>(i), ",");
   return s;
 }
 
@@ -47,7 +41,7 @@ template <typename T> inline std::string fixed(T value, int precision) {
  */
 inline std::string zeroPad(long long value, size_t width) {
   std::ostringstream ss;
-  ss << std::setw(width) << std::setfill('0') << value;
+  ss << std::setw((int)width) << std::setfill('0') << value;
   return ss.str();
 }
 
@@ -256,7 +250,7 @@ inline std::string time_ms(uint64_t ms) {
     return ss.str();
   }
 
-  double seconds = ms / 1000.0;
+  double seconds = static_cast<double>(ms) / 1000.0;
 
   if (seconds < 60) {
     ss << std::fixed << std::setprecision(2) << seconds << "s";

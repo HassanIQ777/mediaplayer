@@ -1,16 +1,11 @@
 #pragma once
 
 #include "declarations.hpp"
-#include "libutils/src/CLIParser.hpp"
-#include "libutils/src/File.hpp"
-#include "libutils/src/Log.hpp"
-#include "libutils/src/color.hpp"
-#include "libutils/src/funcs.hpp"
-#include <cstdlib>
-#include <filesystem>
-#include <ios>
-#include <map>
-#include <string>
+#include "libutils/CLIParser.hpp"
+#include "libutils/File.hpp"
+#include "libutils/Log.hpp"
+#include "libutils/color.hpp"
+#include "libutils/funcs.hpp"
 
 inline std::string quickTime() {
   const auto now = std::chrono::system_clock::now();

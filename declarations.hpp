@@ -3,7 +3,7 @@
 #pragma once
 
 #include "json.hpp"
-#include "libutils/src/funcs.hpp"
+#include "libutils/funcs.hpp"
 #include <fstream>
 #include <string>
 

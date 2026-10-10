@@ -1,3 +1,7 @@
+/* Part of https://github.com/HassanIQ777/libutils
+Made on:     2026 Jun 1
+Last update: 2026 Jun 18 */
+
 #pragma once
 
 #include <atomic>
@@ -62,9 +66,8 @@ public:
               snapshot = msg;
             }
             std::cout << "\033[2K" << "\r"
-                      << "\x1b[32m" << "\x1b[1m"
-                      << loading_bar[i % loading_bar.size()] << "\x1b[0m" << " "
-                      << snapshot << std::flush;
+                      << loading_bar[i % loading_bar.size()] << " " << snapshot
+                      << std::flush;
             std::this_thread::sleep_for(
                 std::chrono::milliseconds(sleep_duration));
             i++;

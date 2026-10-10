@@ -2,13 +2,15 @@
 
 #include "ClipBoard.hpp"
 #include "helpers.hpp"
-#include "libutils/src/LoadingBar.hpp"
-#include "libutils/src/funcs.hpp"
+#include "libutils/Input.hpp"
+#include "libutils/LoadingBar.hpp"
+#include "libutils/funcs.hpp"
 #include <algorithm>
 #include <csignal>
 #include <cstdio>
 #include <numeric> // std::iota
 #include <string>
+#include <vector>
 
 void printfiles(const std::vector<size_t> &indices,
                 const std::vector<std::string> &files, size_t from, size_t to,
@@ -26,8 +28,9 @@ int main(int argc, char *argv[]) {
 
   parseArgs(parser, globals);
   funcs::alternativeTerminal();
-  Loadingbar::Spinner loading_bar{
-      {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 100, "Fetching files"};
+  std::vector<std::string> v_loading_bar = {"⣾", "⣽", "⣻", "⢿",
+                                            "⡿", "⣟", "⣯", "⣷"};
+  Loadingbar::Spinner loading_bar{v_loading_bar, 100, "Fetching files"};
 
   assignPaths(globals);
   createFiles(globals);
@@ -84,6 +87,8 @@ int main(int argc, char *argv[]) {
   size_t selected = 0;
   bool running = true;
   bool is_alpha_sort = false;
+  bool should_refetch = false;
+
   loading_bar.stop();
 
   while (running) {
@@ -194,6 +199,7 @@ int main(int argc, char *argv[]) {
         }
       }
 
+      // HELP
       else if (key == "h" || key == "H") {
         print("\n");
         print("Use arrow keys to move or skip pages\n");
@@ -202,6 +208,7 @@ int main(int argc, char *argv[]) {
         }
         print("[r] Reset\n");
         print("[R] Restart (refetches files)\n");
+        print("[d] Delete selected media\n");
         print("[f] Change sorting mode. Current Mode: ");
         print((is_alpha_sort ? "Alphabetical" : "Chronological"), "\n");
         print("[,] Settings Menu\n");
@@ -259,8 +266,7 @@ int main(int argc, char *argv[]) {
       // Reset
       else if (key == "r") {
         print("\n");
-        Loadingbar::Spinner loading{
-            {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 100, "Refreshing files"};
+        Loadingbar::Spinner loading{v_loading_bar, 100, "Refreshing files"};
         show_files_indices.resize(files.size());
         std::iota(show_files_indices.begin(), show_files_indices.end(), 0);
         selected = 0;
@@ -269,11 +275,54 @@ int main(int argc, char *argv[]) {
                       show_files_indices.size());
       }
 
-      // Full Reset
-      else if (key == "R") {
+      else if (key == "d") {
+        const std::string fp = full_paths[show_files_indices[selected]];
+
+        print("\nConfirm [Y/n]: ");
+        auto inp = Input::readline<std::string>();
+        if (inp == "n") {
+          continue;
+        } else {
+          auto status = File::removefile(fp);
+          if (status) {
+            should_refetch = true;
+          } else {
+            print("\nFailed to delete this file.\n");
+            funcs::getKeyPress();
+          }
+        }
+      }
+
+      else if (key == "f") { // Toggle Sort
+        is_alpha_sort = !is_alpha_sort;
         print("\n");
-        Loadingbar::Spinner loading{
-            {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}, 100, "Refetching files"};
+        Loadingbar::Spinner loading{v_loading_bar, 100,
+                                    "Sorting files " +
+                                        ((is_alpha_sort)
+                                             ? funcs::str("Alphabetically")
+                                             : funcs::str("Chronologically"))};
+        if (is_alpha_sort)
+          std::sort(full_paths.begin(), full_paths.end());
+        else
+          full_paths = File::sortChronological(full_paths);
+
+        refreshFiles(files, full_paths);
+        std::iota(show_files_indices.begin(), show_files_indices.end(), 0);
+      }
+
+      else if (key == ".") {
+        globals.ui_state = UI_State::LATEST_MEDIA;
+      }
+
+      else if (key == ",") {
+        globals.ui_state = UI_State::SETTINGS;
+      }
+
+      // Full Reset
+      if (key == "R" || should_refetch) {
+        should_refetch = false;
+        print("\n");
+        Loadingbar::Spinner loading{v_loading_bar, 100, "Refetching files"};
         full_paths.clear();
         const std::vector<std::string> contents =
             exception_list.empty()
@@ -296,32 +345,6 @@ int main(int argc, char *argv[]) {
         to = std::min((size_t)globals.settings.columns,
                       show_files_indices.size());
         selected = 0;
-      }
-
-      else if (key == "f") { // Toggle Sort
-        is_alpha_sort = !is_alpha_sort;
-        print("\n");
-        Loadingbar::Spinner loading{{"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"},
-                                    100,
-                                    "Sorting files " +
-                                        ((is_alpha_sort)
-                                             ? funcs::str("Alphabetically")
-                                             : funcs::str("Chronologically"))};
-        if (is_alpha_sort)
-          std::sort(full_paths.begin(), full_paths.end());
-        else
-          full_paths = File::sortChronological(full_paths);
-
-        refreshFiles(files, full_paths);
-        std::iota(show_files_indices.begin(), show_files_indices.end(), 0);
-      }
-
-      else if (key == ".") {
-        globals.ui_state = UI_State::LATEST_MEDIA;
-      }
-
-      else if (key == ",") {
-        globals.ui_state = UI_State::SETTINGS;
       }
     }
 
