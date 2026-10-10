@@ -2,3 +2,7 @@
 main.o
 main
 mediaplayer
+settings.json
+latest-media
+history
+exception-list
