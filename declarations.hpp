@@ -83,7 +83,7 @@ struct Settings {
 struct Globals {
   Paths paths;
   UI_State ui_state = UI_State::MAIN_MENU;
-  std::string VERSION = "26.9.24";
+  std::string VERSION = "26.10.10";
   std::string delimiter;
   Settings settings;
 };
