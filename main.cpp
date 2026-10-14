@@ -92,6 +92,7 @@ int main(int argc, char *argv[]) {
   loading_bar.stop();
 
   while (running) {
+    fflush(stdout);
     funcs::clearTerminal();
 
     if (globals.ui_state == UI_State::MAIN_MENU) {
@@ -265,8 +266,6 @@ int main(int argc, char *argv[]) {
 
       // Reset
       else if (key == "r") {
-        print("\n");
-        Loadingbar::Spinner loading{v_loading_bar, 100, "Refreshing files"};
         show_files_indices.resize(files.size());
         std::iota(show_files_indices.begin(), show_files_indices.end(), 0);
         selected = 0;
@@ -319,8 +318,7 @@ int main(int argc, char *argv[]) {
       }
 
       // Full Reset
-      if (key == "R" || should_refetch) {
-        should_refetch = false;
+      else if (key == "R") {
         print("\n");
         Loadingbar::Spinner loading{v_loading_bar, 100, "Refetching files"};
         full_paths.clear();
@@ -345,6 +343,17 @@ int main(int argc, char *argv[]) {
         to = std::min((size_t)globals.settings.columns,
                       show_files_indices.size());
         selected = 0;
+      }
+
+      if (should_refetch){
+      	should_refetch = false;
+		size_t idx = show_files_indices[selected];
+		full_paths.erase(full_paths.begin() + idx);
+		show_files_indices.erase(show_files_indices.begin() + selected);
+		for (auto &i : show_files_indices) if (i > idx) --i; // the hole closes
+		selected = std::min(selected, show_files_indices.empty() ? 0 : show_files_indices.size() - 1);
+		if (selected < from) from = selected;
+		to = std::min(from + (size_t)globals.settings.columns, show_files_indices.size());
       }
     }
 
@@ -402,7 +411,8 @@ void printfiles(const std::vector<size_t> &indices,
   }
 
   std::string border;
-  for (size_t i = 0; i < funcs::getTerminalWidth(); i++)
+  const size_t width = funcs::getTerminalWidth();
+  for (size_t i = 0; i < width; i++)
     border += BORDER_CHAR;
 
   print(TXT_CYAN, A_BOLD);
