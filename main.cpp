@@ -401,22 +401,23 @@ void printfiles(const std::vector<size_t> &indices,
                 size_t selected) {
   using namespace color;
 
-  from = std::max(0UL, std::min(from, indices.size() - 1));
-  to = std::max(from, std::min(to, indices.size()));
-  selected = std::max(from, std::min(selected, to - 1));
-
   if (indices.empty()) {
     std::cout << "No files available.\n";
     return;
   }
 
+  from = std::max(0UL, std::min(from, indices.size() - 1));
+  to = std::max(from, std::min(to, indices.size()));
+  selected = std::max(from, std::min(selected, to - 1));
+
   std::string border;
   const size_t width = funcs::getTerminalWidth();
+  border.reserve(width);
   for (size_t i = 0; i < width; i++)
     border += BORDER_CHAR;
 
   print(TXT_CYAN, A_BOLD);
-  std::string select_media = +"Select media " + funcs::str(selected + 1) +
+  std::string select_media = "Select media " + funcs::str(selected + 1) +
                              " / " + funcs::str(indices.size()) + ":";
 
   funcs::printLeftMiddleRight(select_media, "", quickTime());
@@ -436,11 +437,10 @@ void printfiles(const std::vector<size_t> &indices,
     }
   }
 
-  if (to - from <= 0) {
-    std::cout << "No files to display." << "\n";
-    selected = 0;
+  if (to <= from) {
+    std::cout << "No files to display.\n";
   }
 
-  std::cout << TXT_BLUE << border << A_RESET
-            << std::endl; // the only endl we need
+  std::cout << TXT_BLUE << border << A_RESET << std::endl;
 }
+
